@@ -2,7 +2,7 @@
 
 import configparser
 import os
-from typing import Tuple
+from typing import Tuple, Dict
 
 PINS = 'pins'
 R = 'red'
@@ -27,12 +27,12 @@ class ConfigManager:
         morning_color = config.get_profile_color('profile.morning')
     """
     
-    def __init__(self, config_file='config/config.conf'):
+    def __init__(self, config_file: str = 'config/config.conf') -> None:
         self._config = configparser.ConfigParser()
         self._config_file = config_file
         self._load_config()
     
-    def _load_config(self):
+    def _load_config(self) -> None:
         """Load configuration from file."""
         if not os.path.exists(self._config_file):
             raise FileNotFoundError(f"Configuration file '{self._config_file}' not found")
@@ -76,7 +76,7 @@ class ConfigManager:
         except (configparser.NoSectionError, configparser.NoOptionError) as e:
             raise ValueError(f"Color '{color}' in profile '{profile}' not found: {e}")
 
-    def get_all_pin_assignments(self) -> dict:
+    def get_all_pin_assignments(self) -> Dict[str, int]:
         """Get all pin assignments as a dictionary."""
         return {
             R: self._get_pin(R),
@@ -84,7 +84,7 @@ class ConfigManager:
             B: self._get_pin(B)
         }
     
-    def reload(self):
+    def reload(self) -> None:
         """Reload configuration from file."""
         self._load_config()
 

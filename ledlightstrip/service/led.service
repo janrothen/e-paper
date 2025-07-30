@@ -27,8 +27,8 @@ ExecStart=/usr/bin/python3 -u run.py profile
 WorkingDirectory=/home/pi/raspberry/ledlightstrip
 User=pi
 Group=pi
-StandardOutput=journal
-StandardError=journal
+StandardOutput=append:/var/log/led.log
+StandardError=inherit
 Restart=always
 RestartSec=10
 # Kill gracefully with SIGTERM, then SIGKILL after 30 seconds

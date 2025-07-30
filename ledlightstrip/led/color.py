@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 
+
+
 import random
+from typing import Any, Tuple, Optional, ClassVar
+from dataclasses import dataclass, field
 
-MIN_COLOR_VALUE = 0
-MAX_COLOR_VALUE = 255
+MIN_COLOR_VALUE: int = 0
+MAX_COLOR_VALUE: int = 255
 
 
+
+@dataclass(frozen=True, eq=True)
 class Color:
     """
     Represents an RGB color with validation and utility methods.
@@ -19,28 +25,46 @@ class Color:
         custom = Color.from_hex("#FF5733")
         r, g, b = red.rgb  # Unpack as tuple
     """
-    
-    def __init__(self, red=0, green=0, blue=0):
-        self.red = self._clamp(red)
-        self.green = self._clamp(green)
-        self.blue = self._clamp(blue)
-    
-    def _clamp(self, value):
+    red: int = field(default=0)
+    green: int = field(default=0)
+    blue: int = field(default=0)
+
+    BLACK: ClassVar[Optional['Color']]
+    WHITE: ClassVar[Optional['Color']]
+    RED: ClassVar[Optional['Color']]
+    GREEN: ClassVar[Optional['Color']]
+    BLUE: ClassVar[Optional['Color']]
+    YELLOW: ClassVar[Optional['Color']]
+    CYAN: ClassVar[Optional['Color']]
+    MAGENTA: ClassVar[Optional['Color']]
+    ORANGE: ClassVar[Optional['Color']]
+    PURPLE: ClassVar[Optional['Color']]
+    PINK: ClassVar[Optional['Color']]
+    WARM_WHITE: ClassVar[Optional['Color']]
+    COOL_WHITE: ClassVar[Optional['Color']]
+
+    def __post_init__(self):
+        object.__setattr__(self, 'red', self._clamp(self.red))
+        object.__setattr__(self, 'green', self._clamp(self.green))
+        object.__setattr__(self, 'blue', self._clamp(self.blue))
+
+    @staticmethod
+    def _clamp(value: Any) -> int:
         """Clamp color value between MIN and MAX."""
         return max(MIN_COLOR_VALUE, min(MAX_COLOR_VALUE, int(value)))
 
     @property
-    def rgb(self):
+    def rgb(self) -> Tuple[int, int, int]:
         """Return color as (red, green, blue) tuple."""
         return (self.red, self.green, self.blue)
     
     @classmethod
-    def from_tuple(cls, rgb_tuple):
+    def from_tuple(cls, rgb_tuple: Tuple[int, int, int]) -> 'Color':
         """Create Color from (r, g, b) tuple."""
         return cls(*rgb_tuple)
     
     @classmethod
-    def from_hex(cls, hex_string):
+    def from_hex(cls, hex_string: str) -> 'Color':
         """Create Color from hex string like '#FF0000' or 'FF0000'."""
         hex_string = hex_string.lstrip('#')
         if len(hex_string) != 6:
@@ -55,7 +79,7 @@ class Color:
             raise ValueError("Invalid hex color string")
     
     @classmethod
-    def random(cls):
+    def random(cls) -> 'Color':
         """Create a random color with RGB values between 0-255."""
         red = random.randint(MIN_COLOR_VALUE, MAX_COLOR_VALUE)
         green = random.randint(MIN_COLOR_VALUE, MAX_COLOR_VALUE)
@@ -63,7 +87,7 @@ class Color:
         return cls(red, green, blue)
     
     @classmethod
-    def random_bright(cls, min_brightness=100):
+    def random_bright(cls, min_brightness: int = 100) -> 'Color':
         """Create a random bright color with minimum brightness per channel."""
         red = random.randint(min_brightness, MAX_COLOR_VALUE)
         green = random.randint(min_brightness, MAX_COLOR_VALUE)
@@ -71,24 +95,19 @@ class Color:
         return cls(red, green, blue)
     
     @classmethod
-    def random_pastel(cls):
+    def random_pastel(cls) -> 'Color':
         """Create a random pastel color (lighter, softer colors)."""
         red = random.randint(150, MAX_COLOR_VALUE)
         green = random.randint(150, MAX_COLOR_VALUE)
         blue = random.randint(150, MAX_COLOR_VALUE)
         return cls(red, green, blue)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Color(R={self.red}, G={self.green}, B={self.blue})"
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Color({self.red}, {self.green}, {self.blue})"
     
-    def __eq__(self, other):
-        if isinstance(other, Color):
-            return self.rgb == other.rgb
-        return False
-
     # Predefined colors
     BLACK = None
     WHITE = None

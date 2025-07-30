@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
+
 import logging
 from time import sleep
-
+from typing import Any, List
 from led.color import Color
 
-FADE_STEP_MS = 20.0  # 20 ms per step equals around 100Hz
-DEFAULT_EFFECT_DURATION_MS = 2000  # Default duration in milliseconds
+FADE_STEP_MS: float = 10.0  # 10 ms per step equals around 200Hz
+DEFAULT_EFFECT_DURATION_MS: int = 2000  # Default duration in milliseconds
 
 
-def breathing_effect(strip, color=Color.RED, duration=DEFAULT_EFFECT_DURATION_MS):
+def breathing_effect(strip: Any, color: Color = Color.RED, duration: int = DEFAULT_EFFECT_DURATION_MS) -> None:
     """Creates a breathing effect by fading in and out"""
     while not strip._interrupt:
         # Fade in
@@ -22,23 +23,36 @@ def breathing_effect(strip, color=Color.RED, duration=DEFAULT_EFFECT_DURATION_MS
         if strip.is_interrupted():
             break
 
-def random_color_effect(strip, interval=DEFAULT_EFFECT_DURATION_MS):
+def random_color_effect(strip: Any, interval: int = DEFAULT_EFFECT_DURATION_MS) -> None:
     """Changes colors randomly at specified intervals"""
     while not strip.is_interrupted():
         color = Color.random_bright()
         strip.set_color(color)
         sleep(interval / 1000.0)  # Convert ms to seconds
 
-def color_cycle_effect(strip, colors=[Color.RED, Color.GREEN, Color.BLUE], duration=DEFAULT_EFFECT_DURATION_MS):
-    """Cycles through a list of colors"""
+def color_cycle_effect(strip: Any, colors: List[Color] = [Color.RED, Color.GREEN, Color.BLUE], duration: int = DEFAULT_EFFECT_DURATION_MS) -> None:
+    """Cycles through a list of colors with smooth transitions between them"""    
+    # Start with the first color
+    strip.set_color(colors[0])
+    
     while not strip.is_interrupted():
-        for color in colors:
+        for i in range(len(colors)):
             if strip.is_interrupted():
                 break
-            fade_effect(strip, Color.BLACK, color, duration)
-            sleep(1)  # Hold color for 1 second
+            
+            # Get current and next color (wrap around to first color)
+            current_color = colors[i]
+            next_color = colors[(i + 1) % len(colors)]
+            
+            # Fade from current to next color
+            fade_effect(strip, current_color, next_color, duration)
+            
+            if strip.is_interrupted():
+                break
+            
+            sleep(0.5)  # Hold color for 0.5 seconds
 
-def fade_effect(strip, color_start=Color.BLACK, color_end=Color.WHITE, duration=DEFAULT_EFFECT_DURATION_MS):
+def fade_effect(strip: Any, color_start: Color = Color.BLACK, color_end: Color = Color.WHITE, duration: int = DEFAULT_EFFECT_DURATION_MS) -> None:
     r_start, g_start, b_start = color_start.rgb
     r_end, g_end, b_end = color_end.rgb
     r_diff = r_end - r_start

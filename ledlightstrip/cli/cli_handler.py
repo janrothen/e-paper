@@ -37,6 +37,9 @@ class CLIHandler:
             return color_map[color_str]
         elif color_str.startswith('#'):
             return Color.from_hex(color_str)
+        elif len(color_str) == 6 and all(c in '0123456789abcdef' for c in color_str):
+            # Handle hex color without # prefix
+            return Color.from_hex(color_str)
         else:
             raise ValueError(f"Unknown color: {color_str}")
     

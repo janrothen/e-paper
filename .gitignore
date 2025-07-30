@@ -8,3 +8,4 @@ venv/
 *.DS_STORE
 
 .vscode/*
+.coverage

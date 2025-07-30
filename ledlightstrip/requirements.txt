@@ -1,2 +1,2 @@
-configparser==7.2.0
-python-dateutil==2.8.2
+configparser>=7.1.0
+python-dateutil>=2.8.2
