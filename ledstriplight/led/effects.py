@@ -25,7 +25,7 @@ def breathing_effect(strip: Any, color: Color = Color.RED, duration: int = DEFAU
 def random_color_effect(strip: Any, interval: int = DEFAULT_EFFECT_DURATION_MS) -> None:
     """Changes colors randomly at specified intervals"""
     while not strip.is_interrupted():
-        color = Color.random_bright()
+        color = Color.random_pastel()
         strip.set_color(color)
         sleep(interval / 1000.0)  # Convert ms to seconds
 

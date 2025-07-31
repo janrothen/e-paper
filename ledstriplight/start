@@ -1,2 +1,2 @@
 #!/bin/bash
-systemctl start led.service
+systemctl start ledstriplight.service

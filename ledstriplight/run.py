@@ -23,14 +23,14 @@ def main():
     config_manager = ConfigManager()
     pins = config_manager.get_all_pin_assignments()
     gpio_service = GPIOService()
-    strip = LEDStripLightController(pins, gpio_service=gpio_service)
+    led_controller = LEDStripLightController(pins, gpio_service=gpio_service)
     profile_manager = ProfileManager(config_manager)
     
     # Initialize effect runner
-    effect_runner = EffectRunner(strip, profile_manager)
+    effect_runner = EffectRunner(led_controller, profile_manager)
     
     # Setup
-    strip.switch_off()
+    led_controller.switch_off()
     logging.info(f"App started with effect: {args.effect}. Press Ctrl+C to stop.")
     
     # Execute the requested effect
@@ -42,8 +42,8 @@ def main():
         time.sleep(1)
     
     # Cleanup
-    strip.stop_current_sequence()
-    strip.switch_off()
+    led_controller.stop_current_sequence()
+    led_controller.switch_off()
     logging.info("App exited cleanly.")
 
 

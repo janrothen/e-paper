@@ -158,30 +158,3 @@ curl http://localhost:5000/status
 You can integrate the LED strip with Homebridge for Apple HomeKit support. All installation and configuration instructions, including example Homebridge accessory configuration, can be found in the `config/homebridge/` directory of this repository.
 
 See [`README.md`](config/homebridge/README.md) for details on how to set up Homebridge integration and connect it to the Flask server endpoints.
-
-## Timers
-
-Copy `led.service` to `/etc/systemd/system`
-
-Create a file in `/etc/cron.d/led` to start/stop the systemd service.
-```
-/etc/cron.d $ cat led  
-15 19 * * * root /bin/systemctl start led 2>/tmp/error
-30 22 * * * root /bin/systemctl stop led 2>/tmp/error
-
-15 06 * * * root /bin/systemctl start led 2>/tmp/error
-30 08 * * * root /bin/systemctl stop led 2>/tmp/error
-```
-
-### Status
-```
-pi@zero:~ $ systemctl status led.service
-● led.service - LED Strip Controller Service
-     Loaded: loaded (/etc/systemd/system/led.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2025-07-31 17:05:02 CEST; 2h 40min ago
-   Main PID: 9680 (python3)
-      Tasks: 1 (limit: 414)
-        CPU: 1min 32.221s
-     CGroup: /system.slice/led.service
-             └─9680 /usr/bin/python3 -u run.py profile
-```

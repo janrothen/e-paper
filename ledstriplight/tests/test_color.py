@@ -80,17 +80,22 @@ class TestColor:
         assert 0 <= random_color.red <= 255
         assert 0 <= random_color.green <= 255
         assert 0 <= random_color.blue <= 255
-        
-        bright_color = Color.random_bright(150)
+
+        pastel_color = Color.random_pastel()
+        assert 100 <= pastel_color.red <= 255
+        assert 100 <= pastel_color.green <= 255
+        assert 100 <= pastel_color.blue <= 255
+
+        bright_color = Color.random_bright()
         assert 150 <= bright_color.red <= 255
         assert 150 <= bright_color.green <= 255
         assert 150 <= bright_color.blue <= 255
 
     def test_to_hex(self):
-        assert Color.RED.to_hex() == '#ff0000'
-        assert Color.GREEN.to_hex() == '#00ff00'
-        assert Color.BLUE.to_hex() == '#0000ff'
-        assert Color.WHITE.to_hex() == '#ffffff'
+        assert Color.RED.to_hex() == '#FF0000'
+        assert Color.GREEN.to_hex() == '#00FF00'
+        assert Color.BLUE.to_hex() == '#0000FF'
+        assert Color.WHITE.to_hex() == '#FFFFFF'
         assert Color.BLACK.to_hex() == '#000000'
         assert Color(17, 34, 51).to_hex() == '#112233'
 

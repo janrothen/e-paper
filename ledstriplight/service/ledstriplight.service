@@ -1,18 +1,18 @@
-# LED Strip Controller Service
+# LED Strip Light Controller Service
 # This systemd service runs the LED strip light controller application as a daemon
 # 
 # Installation:
-#   1. Copy this file to /etc/systemd/system/led.service
+#   1. Copy this file to /etc/systemd/system/ledstriplight.service
 #   2. Run: sudo systemctl daemon-reload
-#   3. Run: sudo systemctl enable led.service
-#   4. Run: sudo systemctl start led.service
+#   3. Run: sudo systemctl enable ledstriplight.service
+#   4. Run: sudo systemctl start ledstriplight.service
 #
 # Management:
-#   - Start:   sudo systemctl start led.service
-#   - Stop:    sudo systemctl stop led.service
-#   - Restart: sudo systemctl restart led.service
-#   - Status:  sudo systemctl status led.service
-#   - Logs:    sudo journalctl -u led.service -f
+#   - Start:   sudo systemctl start ledstriplight.service
+#   - Stop:    sudo systemctl stop ledstriplight.service
+#   - Restart: sudo systemctl restart ledstriplight.service
+#   - Status:  sudo systemctl status ledstriplight.service
+#   - Logs:    sudo journalctl -u ledstriplight.service -f
 
 [Unit]
 Description=LED Strip Light Controller Service
@@ -27,7 +27,7 @@ ExecStart=/usr/bin/python3 -u run.py profile
 WorkingDirectory=/home/pi/raspberry/ledstriplight
 User=pi
 Group=pi
-StandardOutput=append:/var/log/led.log
+StandardOutput=append:/var/log/ledstriplight.log
 StandardError=inherit
 Restart=always
 RestartSec=10

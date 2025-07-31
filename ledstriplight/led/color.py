@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import random
-from typing import Any, Tuple, Optional, ClassVar
+from typing import Any, Tuple, ClassVar
 from dataclasses import dataclass, field
 
 MIN_COLOR_VALUE: int = 0
@@ -20,25 +20,26 @@ class Color:
         red = Color(255, 0, 0)
         green = Color.GREEN
         custom = Color.from_hex("#FF5733")
-        r, g, b = red.rgb  # Unpack as tuple
+        r, g, b = red
     """
     red: int = field(default=0)
     green: int = field(default=0)
     blue: int = field(default=0)
 
-    BLACK: ClassVar[Optional['Color']]
-    WHITE: ClassVar[Optional['Color']]
-    RED: ClassVar[Optional['Color']]
-    GREEN: ClassVar[Optional['Color']]
-    BLUE: ClassVar[Optional['Color']]
-    YELLOW: ClassVar[Optional['Color']]
-    CYAN: ClassVar[Optional['Color']]
-    MAGENTA: ClassVar[Optional['Color']]
-    ORANGE: ClassVar[Optional['Color']]
-    PURPLE: ClassVar[Optional['Color']]
-    PINK: ClassVar[Optional['Color']]
-    WARM_WHITE: ClassVar[Optional['Color']]
-    COOL_WHITE: ClassVar[Optional['Color']]
+    # Predefined color constants
+    BLACK: ClassVar["Color"]
+    WHITE: ClassVar["Color"]
+    RED: ClassVar["Color"]
+    GREEN: ClassVar["Color"]
+    BLUE: ClassVar["Color"]
+    YELLOW: ClassVar["Color"]
+    CYAN: ClassVar["Color"]
+    MAGENTA: ClassVar["Color"]
+    ORANGE: ClassVar["Color"]
+    PURPLE: ClassVar["Color"]
+    PINK: ClassVar["Color"]
+    WARM_WHITE: ClassVar["Color"]
+    COOL_WHITE: ClassVar["Color"]
 
     def __post_init__(self):
         object.__setattr__(self, 'red', self._clamp(self.red))
@@ -54,7 +55,7 @@ class Color:
     def rgb(self) -> Tuple[int, int, int]:
         """Return color as (red, green, blue) tuple."""
         return (self.red, self.green, self.blue)
-    
+        
     @classmethod
     def from_tuple(cls, rgb_tuple: Tuple[int, int, int]) -> 'Color':
         """Create Color from (r, g, b) tuple."""
@@ -66,7 +67,6 @@ class Color:
         hex_string = hex_string.lstrip('#')
         if len(hex_string) != 6:
             raise ValueError("Hex string must be 6 characters")
-        
         try:
             r = int(hex_string[0:2], 16)
             g = int(hex_string[2:4], 16)
@@ -76,28 +76,23 @@ class Color:
             raise ValueError("Invalid hex color string")
     
     @classmethod
-    def random(cls) -> 'Color':
+    def random(cls, min_brightness: int = MIN_COLOR_VALUE) -> 'Color':
         """Create a random color with RGB values between 0-255."""
-        red = random.randint(MIN_COLOR_VALUE, MAX_COLOR_VALUE)
-        green = random.randint(MIN_COLOR_VALUE, MAX_COLOR_VALUE)
-        blue = random.randint(MIN_COLOR_VALUE, MAX_COLOR_VALUE)
-        return cls(red, green, blue)
-    
-    @classmethod
-    def random_bright(cls, min_brightness: int = 100) -> 'Color':
-        """Create a random bright color with minimum brightness per channel."""
-        red = random.randint(min_brightness, MAX_COLOR_VALUE)
-        green = random.randint(min_brightness, MAX_COLOR_VALUE)
-        blue = random.randint(min_brightness, MAX_COLOR_VALUE)
-        return cls(red, green, blue)
+        return cls(
+            random.randint(min_brightness, MAX_COLOR_VALUE),
+            random.randint(min_brightness, MAX_COLOR_VALUE),
+            random.randint(min_brightness, MAX_COLOR_VALUE)
+        )
     
     @classmethod
     def random_pastel(cls) -> 'Color':
+        """Create a random bright color with minimum brightness per channel."""
+        return cls.random(100)
+    
+    @classmethod
+    def random_bright(cls) -> 'Color':
         """Create a random pastel color (lighter, softer colors)."""
-        red = random.randint(150, MAX_COLOR_VALUE)
-        green = random.randint(150, MAX_COLOR_VALUE)
-        blue = random.randint(150, MAX_COLOR_VALUE)
-        return cls(red, green, blue)
+        return cls.random(150)
 
     def is_black(self) -> bool:
         """Check if the color is black (all channels are 0)."""
@@ -108,29 +103,18 @@ class Color:
         return max(self.red, self.green, self.blue)
 
     def to_hex(self) -> str:
-        """Return the color as a hex string (e.g. '#ff00ff')."""
-        return '#{:02x}{:02x}{:02x}'.format(self.red, self.green, self.blue)
+        """Return the color as a hex string (e.g. '#FF00FF')."""
+        return '#{:02X}{:02X}{:02X}'.format(self.red, self.green, self.blue)
 
     def __str__(self) -> str:
         return f"Color(R={self.red}, G={self.green}, B={self.blue})"
     
     def __repr__(self) -> str:
         return f"Color({self.red}, {self.green}, {self.blue})"
-    
-    # Predefined colors
-    BLACK = None
-    WHITE = None
-    RED = None
-    GREEN = None
-    BLUE = None
-    YELLOW = None
-    CYAN = None
-    MAGENTA = None
-    ORANGE = None
-    PURPLE = None
-    PINK = None
-    WARM_WHITE = None
-    COOL_WHITE = None
+
+    def __iter__(self):
+        """Allow unpacking: r, g, b = color"""
+        return iter(self.rgb)
 
 # Initialize predefined colors
 Color.BLACK = Color(0, 0, 0)

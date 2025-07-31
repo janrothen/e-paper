@@ -87,7 +87,7 @@ class TestEffects:
         mock_strip.is_interrupted.side_effect = mock_interrupted
         
         with patch('led.effects.sleep'):
-            with patch('led.color.Color.random_bright') as mock_random:
+            with patch('led.color.Color.random') as mock_random:
                 mock_random.return_value = Color.RED
                 random_color_effect(mock_strip, interval=100)
         
