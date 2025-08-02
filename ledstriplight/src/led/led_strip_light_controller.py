@@ -2,20 +2,15 @@
 
 import logging
 from threading import Thread
-from typing import Any, Callable, Optional, Dict
+from typing import Any, Callable
+
 from .color import Color
 from .gpio_service import GPIOService
 
-R: str = 'red'
-G: str = 'green'
-B: str = 'blue'
-
 
 class LEDStripLightController(object):
-    def __init__(self, pins: Dict[str, int], gpio_service: Optional[GPIOService] = None) -> None:
-        self._gpio_service = gpio_service or GPIOService()
-        self._pins = pins
-
+    def __init__(self, gpio_service: GPIOService) -> None:
+        self._gpio_service = gpio_service
         self._interrupt = False
         self._sequence = None
 
@@ -41,28 +36,19 @@ class LEDStripLightController(object):
         return self._interrupt
 
     def get_color(self) -> Color:
-        red = self._gpio_service.get_pin_pwm(self._pins[R])
-        green = self._gpio_service.get_pin_pwm(self._pins[G])
-        blue = self._gpio_service.get_pin_pwm(self._pins[B])
-        return Color(red, green, blue)
+        return self._gpio_service.get_color()
 
     def set_color(self, color: Color = Color.WARM_YELLOW) -> None:
-        logging.info(f"Set RGB to: R={color.red:6.2f} G={color.green:6.2f} B={color.blue:6.2f}")
-        self._set_red_value(color.red)
-        self._set_green_value(color.green)
-        self._set_blue_value(color.blue)
+        self._gpio_service.set_color(color)
     
     def get_brightness_percentage(self) -> int:
-        """Estimate brightness percentage (0–100%) based on current RGB values."""
+        """Get brightness percentage (0–100%) based on the maximum RGB channel value."""
         current_color = self.get_color()
         if current_color.is_black():
             return 0
-        r = current_color.red
-        g = current_color.green
-        b = current_color.blue
-        luminance = 0.299 * r + 0.587 * g + 0.114 * b
-        # Convert to 0–100%
-        return round(luminance / 255 * 100)
+        # Use max channel value to determine brightness, matching set_brightness behavior
+        max_value = current_color.max_channel()
+        return round((max_value / 255) * 100)
 
     def set_brightness(self, brightness: int) -> None:
         """
@@ -77,16 +63,17 @@ class LEDStripLightController(object):
         g_current = current_color.green
         b_current = current_color.blue
 
-        current_max = current_color.max_channel()
+        r_new = g_new = b_new = 0
         if current_color.is_black():
             r_new = g_new = b_new = int(255 * (brightness / 100))
         else:
+            current_max = current_color.max_channel()
             scale = (brightness / 100) * (255 / current_max)
             r_new = int(r_current * scale)
             g_new = int(g_current * scale)
             b_new = int(b_current * scale)
-
-        self.set_color(Color.from_tuple((r_new, g_new, b_new)))
+        new_color = Color(r_new, g_new, b_new)
+        self.set_color(new_color)
 
     #region Sequence control
     def run_sequence(self, func: Callable, *args: Any, **kwargs: Any) -> None:
@@ -116,15 +103,6 @@ class LEDStripLightController(object):
     #endregion
 
     #region Private basic
-    def _set_red_value(self, value: int) -> None:
-        self._gpio_service.set_pin_pwm(self._pins[R], value)
-
-    def _set_green_value(self, value: int) -> None:
-        self._gpio_service.set_pin_pwm(self._pins[G], value)
-
-    def _set_blue_value(self, value: int) -> None:
-        self._gpio_service.set_pin_pwm(self._pins[B], value)
-
     def _reset_sequence(self) -> None:
         self._sequence = None
     #endregion

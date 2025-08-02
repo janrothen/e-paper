@@ -2,7 +2,7 @@
 
 import time
 import logging
-from config_manager import ConfigManager
+from config.config_manager import ConfigManager
 from led.profile_manager import ProfileManager
 from led.gpio_service import GPIOService
 from led.led_strip_light_controller import LEDStripLightController
@@ -21,9 +21,9 @@ def main():
     # Initialize dependencies
     killer = GracefulShutdown()
     config_manager = ConfigManager()
-    pins = config_manager.get_all_pin_assignments()
-    gpio_service = GPIOService()
-    led_controller = LEDStripLightController(pins, gpio_service=gpio_service)
+    pin_assignment = config_manager.get_pin_assignment()
+    gpio_service = GPIOService(pin_assignment.red, pin_assignment.green, pin_assignment.blue)
+    led_controller = LEDStripLightController(gpio_service)
     profile_manager = ProfileManager(config_manager)
     
     # Initialize effect runner

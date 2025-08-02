@@ -3,7 +3,7 @@
 import logging
 from time import sleep
 from typing import Any, List
-from led.color import Color
+from .color import Color
 
 FADE_STEP_MS: float = 10.0  # 10 ms per step equals around 200Hz
 DEFAULT_EFFECT_DURATION_MS: int = 2000  # Default duration in milliseconds

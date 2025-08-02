@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
-import subprocess
+import pigpio
 import logging
-from typing import Any
-
-MIN_PWM_VALUE: int = 0
-MAX_PWM_VALUE: int = 255
+from .color import Color
 
 
 class GPIOService:
@@ -14,37 +11,31 @@ class GPIOService:
     
     This service provides an abstraction layer for hardware interactions,
     specifically for controlling LED brightness through PWM (Pulse Width Modulation).
-    Uses the pigpio library via shell commands to set PWM values on GPIO pins.
-    
-    Typical usage:
-        gpio = GPIOService()
-        gpio.set_pin_pwm(17, 127)  # Set pin 17 to 50% brightness
+    Uses the pigpio library via shell commands to set and get PWM values on GPIO pins.
     """
-    def __init__(self) -> None:
+    def __init__(self, red_pin: int = None, green_pin: int = None, blue_pin: int = None) -> None:
         self.logger = logging.getLogger(__name__)
 
-    def get_pin_pwm(self, pin: int) -> int:
-        """Get the current PWM value for a specific GPIO pin using pigpio."""
-        try:
-            result = subprocess.run(["pigs", "gdc", str(pin)], capture_output=True, check=True, text=True)
-            return int(result.stdout.strip())
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Error reading pin {pin}: {e}")
-            return -1
+        self.pi = pigpio.pi()
+        if not self.pi.connected:
+            raise IOError("Cannot connect to pigpio daemon")
 
-    def set_pin_pwm(self, pin: int, value: int) -> None:
-        """Set pulse width modulation value for a specific GPIO pin using pigpio."""
-        rounded = self._clamp_value(value)
-        try:
-            subprocess.run(["pigs", "p", str(pin), str(rounded)], check=True)
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Failed to set pin {pin}: {e}")
+        self._red_pin = red_pin
+        self._green_pin = green_pin
+        self._blue_pin = blue_pin
 
-    def _clamp_value(self, value: Any, min_val: int = MIN_PWM_VALUE, max_val: int = MAX_PWM_VALUE) -> int:
-        """Clamp value between min and max bounds."""
-        rounded = int(round(value))
-        if rounded < min_val:
-            rounded = min_val
-        if rounded > max_val:
-            rounded = max_val
-        return rounded
+    def get_color(self) -> Color:
+        """Return the current PWM dutycycle values for the RGB pins as a Color object."""
+        try:
+            r = self.pi.get_PWM_dutycycle(self._red_pin)
+            g = self.pi.get_PWM_dutycycle(self._green_pin)
+            b = self.pi.get_PWM_dutycycle(self._blue_pin)
+            return Color.from_tuple((r, g, b))
+        except Exception as e:
+            self.logger.error(f"Error reading RGB color: {e}")
+            return Color.BLACK
+
+    def set_color(self, color: Color = Color.BLACK) -> None:
+        self.pi.set_PWM_dutycycle(self._red_pin,   color.red)
+        self.pi.set_PWM_dutycycle(self._green_pin, color.green)
+        self.pi.set_PWM_dutycycle(self._blue_pin,  color.blue)

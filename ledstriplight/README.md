@@ -16,11 +16,10 @@ The guide ["How to connect RGB Strip LED Lights to Raspberry Pi Zero W"](https:/
 
 
 ## Prerequisites
-```
-python3  
-configparser==7.1.0
-python-dateutil==2.8.2
-```
+
+- Python 3
+- Python packages listed in [requirements.txt](src/requirements.txt)
+- pigpiod daemon (for GPIO control)
 ## Installing
 
 Create symlink to utils in this directory, or imports won't work.
@@ -58,23 +57,23 @@ pip install -r requirements-test.txt
 The application supports multiple effects via command-line arguments:
 
 ```bash
-# Basic profile effect (morning/evening colors based on time)
+# Basic profile effect (morning/evening colors based on time of the day)
 ./run.py profile
 
 # Breathing effect with custom color and duration
 ./run.py breathing --color red --duration 3000
 
-# Random color changes
-./run.py random --interval 2000
+# Use hex colors
+./run.py breathing --color "#FF6347"
 
 # Color cycling through multiple colors
-./run.py cycle --colors red,green,blue,yellow --duration 2500
+./run.py cycle --colors red,green,blue,yellow --duration 500
 
 # Fade between two colors
 ./run.py fade --from black --to white --duration 5000
 
-# Use hex colors
-./run.py breathing --color "#FF6347"
+# Random color changes
+./run.py random --interval 2000
 
 # Get help
 ./run.py --help
@@ -87,25 +86,12 @@ The project includes comprehensive unit tests with hardware mocking:
 # Run all tests
 pytest
 
-# Run tests with coverage report
-pytest --cov=led --cov=config --cov=cli --cov=utils
-
-# Run tests with detailed coverage report (generates HTML)
-pytest --cov=led --cov=config --cov=cli --cov=utils --cov-report=html
-
 # Run specific test file
 pytest tests/test_color.py
 
-# Run tests matching a pattern
-pytest -k "test_color"
-
-# Run tests with verbose output
-pytest -v
-
-# Skip slow tests
-pytest -m "not slow"
+# Run tests with detailed coverage report (generates HTML)
+pytest --cov=led --cov=config --cov=cli --cov=utils --cov-report=html
 ```
-
 
 ### Project Structure
 ```
@@ -116,16 +102,17 @@ ledstriplight/
 │   └── homebridge/              # Homebridge integration
 └── src/                         # Application source code
     ├── run.py                   # Main application entry point
-    ├── config_manager.py        # Configuration manager
     ├── http_server.py           # Flask REST API server
     ├── led/                     # Core LED control modules
     │   ├── effects.py           # LED effects (breathing, fade, etc.)
+    │   ├── effect_runner.py     # Effect runner
     │   ├── gpio_service.py      # Hardware GPIO interface
     │   ├── led_strip_light_controller.py # Main LED controller
-    │   ├── profile_manager.py   # Time-based color profiles
-    │   └──effect_runner.py      # Effect runner
-    ├── cli/                     
+    │   └── profile_manager.py   # Time-based color profiles
+    ├── cli/
     │   └── cli_handler.py       # Command-line interface handler
+    ├── config/
+        └── config_manager.py    # Configuration manager 
     ├── utils/                   # Utilities (logging, shutdown handling)
     └── tests/                   # Unit tests with mocked hardware
 ```

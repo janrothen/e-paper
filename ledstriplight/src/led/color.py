@@ -29,6 +29,7 @@ class Color:
     # Predefined color constants
     BLACK: ClassVar["Color"]
     WHITE: ClassVar["Color"]
+    GRAY_50: ClassVar["Color"]
     WARM_WHITE: ClassVar["Color"]
     COOL_WHITE: ClassVar["Color"]
     RED: ClassVar["Color"]
@@ -124,6 +125,7 @@ class Color:
 # Initialize predefined colors
 Color.BLACK = Color(0, 0, 0)
 Color.WHITE = Color(255, 255, 255)
+Color.GRAY_50 = Color(127, 127, 127)
 Color.WARM_WHITE = Color(255, 200, 100)
 Color.COOL_WHITE = Color(200, 220, 255)
 Color.RED = Color(255, 0, 0)

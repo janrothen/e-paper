@@ -9,8 +9,9 @@ Tests configuration loading and validation with temporary config files.
 import pytest
 import tempfile
 import os
+from led.color import Color
 from pathlib import Path
-from config_manager import ConfigManager
+from config.config_manager import ConfigManager
 
 
 class TestConfigManager:
@@ -51,14 +52,14 @@ blue = 0
             config = ConfigManager(config_path)
             
             # Test pin assignments
-            pins = config.get_all_pin_assignments()
-            assert pins['red'] == 18
-            assert pins['green'] == 19
-            assert pins['blue'] == 20
-            
+            pin_assignment = config.get_pin_assignment()
+            assert pin_assignment.red == 18
+            assert pin_assignment.green == 19
+            assert pin_assignment.blue == 20
+
             # Test profile colors
-            morning_colors = config.get_profile_colors('profile.morning')
-            assert morning_colors == (255, 200, 100)
+            morning_colors = config.get_color_profile('profile.morning').to_color()
+            assert morning_colors == Color(255, 200, 100)
             
         finally:
             os.unlink(config_path)
@@ -79,7 +80,7 @@ red = invalid_number
         try:
             config = ConfigManager(config_path)
             with pytest.raises(ValueError):
-                config.get_all_pin_assignments()
+                config.get_pin_assignment()
         finally:
             os.unlink(config_path)
     
@@ -96,6 +97,6 @@ blue = 20
         try:
             config = ConfigManager(config_path)
             with pytest.raises(ValueError):
-                config.get_profile_colors('profile.nonexistent')
+                config.get_color_profile('profile.nonexistent')
         finally:
             os.unlink(config_path)

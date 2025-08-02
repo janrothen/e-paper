@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 
-from flask import Flask, Response, jsonify
-from config_manager import ConfigManager
+from flask import Flask, Response
+
+from config.config_manager import ConfigManager
+from led.gpio_service import GPIOService
 from led.led_strip_light_controller import LEDStripLightController
 from led.color import Color
 
 app = Flask(__name__)
 config_manager = ConfigManager()
-pins = config_manager.get_all_pin_assignments()
-led_controller = LEDStripLightController(pins)
+pin_assignment = config_manager.get_pin_assignment()
+gpio_service = GPIOService(
+            red_pin=pin_assignment.red,
+            green_pin=pin_assignment.green,
+            blue_pin=pin_assignment.blue
+        )
+led_controller = LEDStripLightController(gpio_service=gpio_service)
 
 @app.route("/on", methods=["POST"])
 def turn_on():
@@ -26,7 +33,7 @@ def get_status():
     return Response(is_on, status=200)
 
 @app.route("/color", methods=["GET"])
-def get_color_txt():
+def get_color():
     hex_color = led_controller.get_color().to_hex_with_hash()
     return Response(hex_color, status=200)
 
@@ -37,7 +44,7 @@ def set_color(value):
     return Response(status=200)
 
 @app.route("/brightness", methods=["GET"])
-def get_brightness_txt():
+def get_brightness():
     brightness = led_controller.get_brightness_percentage()
     return Response(str(brightness), status=200)
 
