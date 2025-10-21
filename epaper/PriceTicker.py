@@ -13,7 +13,8 @@ DIR_MEDIA = os.path.join(DIRECTORY, 'media')
 if os.path.exists(DIR_LIB):
     sys.path.append(DIR_LIB)
 
-from lib import epd2in13_V2
+from waveshare_epd import epd2in13_V2
+#from lib import epd2in13_V2
 from PIL import Image, ImageDraw, ImageFont
 
 import logging

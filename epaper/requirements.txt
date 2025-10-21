@@ -1,5 +1,8 @@
-numpy==1.22.0
-RPi.GPIO==0.7.0
+numpy==2.3.1
+RPi.GPIO==0.7.1
 spidev==3.4
 piglow==1.2.5
 pigpio==1.44
+requests>=2.0.0
+gpiozero>=1.6.2
+git+https://github.com/waveshareteam/e-Paper.git#subdirectory=RaspberryPi_JetsonNano/python
