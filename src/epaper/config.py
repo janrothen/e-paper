@@ -4,7 +4,12 @@ except ImportError:
     import tomli as tomllib  # type: ignore[no-redef]
 from pathlib import Path
 
-_CONFIG_PATH = Path(__file__).parents[2] / "config.toml"
+# Prefer config.toml next to the current working directory (production: the
+# systemd WorkingDirectory). Fall back to the repo root for development.
+_CWD_CONFIG = Path.cwd() / "config.toml"
+_REPO_CONFIG = Path(__file__).parents[2] / "config.toml"
+_CONFIG_PATH = _CWD_CONFIG if _CWD_CONFIG.exists() else _REPO_CONFIG
+
 _config = None
 
 

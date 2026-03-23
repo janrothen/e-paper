@@ -56,11 +56,12 @@ class PriceTicker:
 
     def stop(self) -> None:
         logging.info("shutting down")
-        if self._running:
-            self._running = False
-            self._epd.init(self._epd.FULL_UPDATE)
-            self._epd.Clear(0xFF)
-            self._epd.sleep()
+        if not self._running:
+            return
+        self._running = False
+        self._epd.init(self._epd.FULL_UPDATE)
+        self._epd.Clear(0xFF)
+        self._epd.sleep()
 
     def _display_image(self) -> None:
         image = Image.open(IMAGE_FILE)
