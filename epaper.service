@@ -1,0 +1,14 @@
+[Unit]
+Description=E-Paper Bitcoin Price Ticker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/epaper
+ExecStart=/home/pi/epaper/.venv/bin/python -m epaper
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

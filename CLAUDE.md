@@ -30,10 +30,39 @@ pyproject.toml       # packaging and dependencies
 ## Install & run
 ```bash
 # On Raspberry Pi (with hardware deps):
+python -m venv .venv
+source .venv/bin/activate
 pip install -e ".[rpi]"
 python -m epaper
 
 # Dev/test (no GPIO hardware needed):
+python -m venv .venv
+source .venv/bin/activate
 pip install -e ".[dev]"
 pytest
+```
+
+If you get permission errors on SPI/GPIO devices, add your user to the required groups (then log out and back in):
+```bash
+sudo usermod -aG spi,gpio $USER
+```
+
+## Run as a systemd service (auto-start on boot, auto-restart on failure)
+
+```bash
+# Install the service unit
+sudo cp epaper.service /etc/systemd/system/
+sudo systemctl daemon-reload
+
+# Enable (start on boot) and start immediately
+sudo systemctl enable --now epaper
+
+# Check status / logs
+systemctl status epaper
+journalctl -u epaper -f
+```
+
+To stop and disable auto-start:
+```bash
+sudo systemctl disable --now epaper
 ```
