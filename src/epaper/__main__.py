@@ -9,7 +9,7 @@ from epaper.config import config
 os.environ.setdefault("GPIOZERO_PIN_FACTORY", config().get("gpiozero", {}).get("pin_factory", "pigpio"))
 
 from epaper.display import Display
-from epaper.price.client import BitcoinPriceClient
+from epaper.price.bitcoin_price_client import BitcoinPriceClient
 from epaper.price.price_extractor import PriceExtractor
 from epaper.price_ticker import PriceTicker
 from epaper.utils.graceful_shutdown import GracefulShutdown
