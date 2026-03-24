@@ -1,6 +1,6 @@
 import unittest
 
-from epaper.price.extractor import PriceExtractor
+from epaper.price.price_extractor import PriceExtractor
 
 
 class TestPriceExtractor(unittest.TestCase):
