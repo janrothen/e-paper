@@ -8,9 +8,10 @@ from epaper.config import config
 
 os.environ.setdefault("GPIOZERO_PIN_FACTORY", config().get("gpiozero", {}).get("pin_factory", "pigpio"))
 
-from epaper.display import PriceTicker
+from epaper.display import Display
 from epaper.price.client import BitcoinPriceClient
 from epaper.price.extractor import PriceExtractor
+from epaper.ticker import PriceTicker
 from epaper.utils.graceful_shutdown import GracefulShutdown
 from epaper.utils.watchdog import sd_notify
 
@@ -18,9 +19,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main() -> None:
+    display = Display()
     price_client = BitcoinPriceClient()
     price_extractor = PriceExtractor("USD", "$")
-    ticker = PriceTicker(price_client, price_extractor)
+    ticker = PriceTicker(display, price_client, price_extractor)
     shutdown = GracefulShutdown()
 
     try:
