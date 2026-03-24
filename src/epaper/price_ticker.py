@@ -12,7 +12,7 @@ _MEDIA_DIR = Path(__file__).parent / "media"
 FONT_FILE = _MEDIA_DIR / "UbuntuBoldItalic-Rg86.ttf"
 IMAGE_FILE = _MEDIA_DIR / "bitcoin122x122_b.bmp"
 FONT_SIZE = 48  # 48 points = 64 pixels
-PRICE_REFRESH_INTERVAL = 300  # seconds
+DEFAULT_REFRESH_INTERVAL = 300  # seconds
 
 WHITE = 255
 BLACK = 0
@@ -25,10 +25,11 @@ class PriceTicker:
     all hardware operations to the Display instance.
     """
 
-    def __init__(self, display: Display, price_client, price_extractor) -> None:
+    def __init__(self, display: Display, price_client, price_extractor, refresh_interval: int = DEFAULT_REFRESH_INTERVAL) -> None:
         self.display = display
         self.price_client = price_client
         self.price_extractor = price_extractor
+        self._refresh_interval = refresh_interval
         self._stopped = False
         self._last_refresh = 0.0  # triggers refresh on first tick()
         self._font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
@@ -44,7 +45,7 @@ class PriceTicker:
 
     def tick(self) -> None:
         """Run one iteration of the price refresh loop. Call repeatedly from main."""
-        if time.monotonic() - self._last_refresh >= PRICE_REFRESH_INTERVAL:
+        if time.monotonic() - self._last_refresh >= self._refresh_interval:
             self.display.init()
             self.display.clear()
 

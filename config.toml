@@ -1,5 +1,8 @@
 [bitcoin.price]
 service_endpoint = "https://blockchain.info/ticker"
+currency = "USD"
+symbol = "$"
+refresh_interval = 300  # seconds
 
 [gpiozero]
 pin_factory = "pigpio"

@@ -2,6 +2,18 @@
 
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
+## Configuration
+
+Edit `config.toml` to customise the behaviour:
+
+```toml
+[bitcoin.price]
+service_endpoint = "https://blockchain.info/ticker"
+currency = "USD"   # currency code returned by the API (e.g. "CHF")
+symbol = "$"       # symbol shown on the display (e.g. "CHF")
+refresh_interval = 300  # seconds between price refreshes
+```
+
 ## Requirements
 
 - Raspberry Pi (tested on Pi 5)
