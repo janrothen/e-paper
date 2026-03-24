@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 User=pi
-WorkingDirectory=/home/pi/epaper
-ExecStart=/home/pi/epaper/.venv/bin/python -m epaper
+WorkingDirectory=/home/pi/e-paper
+ExecStart=/home/pi/e-paper/.venv/bin/python -m epaper
 Restart=on-failure
 RestartSec=10
 Type=notify
