@@ -9,18 +9,22 @@ class TestPriceExtractor(unittest.TestCase):
 
     def test_format_price_in_millions(self):
         self.assertEqual(self.extractor.format_price(1234567), "$1.234M")
+        self.assertEqual(self.extractor.format_price(1230000), "$1.23M")
+        self.assertEqual(self.extractor.format_price(1000000), "$1M")
         self.assertEqual(self.extractor.format_price(999999.99), "$.999M")
         self.assertEqual(self.extractor.format_price(100000), "$.1M")
 
     def test_format_price_in_thousands(self):
         self.assertEqual(self.extractor.format_price(99999), "$99.99k")
-        self.assertEqual(self.extractor.format_price(50000), "$50.00k")
-        self.assertEqual(self.extractor.format_price(1000), "$1.00k")
+        self.assertEqual(self.extractor.format_price(50010), "$50.01k")
+        self.assertEqual(self.extractor.format_price(50100), "$50.1k")
+        self.assertEqual(self.extractor.format_price(50000), "$50k")
+        self.assertEqual(self.extractor.format_price(1000), "$1k")
 
     def test_format_price_below_thousand(self):
-        self.assertEqual(self.extractor.format_price(999), "$999.000")
-        self.assertEqual(self.extractor.format_price(123.45), "$123.000")
-        self.assertEqual(self.extractor.format_price(0.99), "$0.000")
+        self.assertEqual(self.extractor.format_price(999), "$999")
+        self.assertEqual(self.extractor.format_price(123.45), "$123")
+        self.assertEqual(self.extractor.format_price(0.99), "$0")
 
     def test_unknown_currency_returns_na(self):
         extractor = PriceExtractor("XYZ", "X")

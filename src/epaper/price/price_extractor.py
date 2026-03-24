@@ -21,15 +21,16 @@ class PriceExtractor:
         price_without_cents = self.price_without_cents(price)
         if price_without_cents >= 100_000:
             value = price_without_cents / 1_000_000
-            truncated = int(value * 1000) / 1000  # 3 decimal places, no rounding
-            return f'{self.symbol}{str(truncated).lstrip("0")}M'
+            truncated = int(value * 1000) / 1000  # truncate to 3 decimal places, no rounding
+            formatted = f"{truncated:.3f}".rstrip("0").rstrip(".")
+            return f'{self.symbol}{formatted.lstrip("0")}M'
         elif price_without_cents >= 1_000:
             value = price_without_cents / 1_000
-            truncated = int(value * 100) / 100  # 2 decimal places, no rounding
-            return f"{self.symbol}{truncated:.2f}k"
+            truncated = int(value * 100) / 100  # truncate to 2 decimal places, no rounding
+            formatted = f"{truncated:.2f}".rstrip("0").rstrip(".")
+            return f"{self.symbol}{formatted}k"
         else:
-            truncated = int(price_without_cents * 1000) / 1000  # 3 decimal places
-            return f"{self.symbol}{truncated:.3f}"
+            return f"{self.symbol}{int(price_without_cents)}"
 
     def price_without_cents(self, price: float) -> float:
         return float(math.floor(price))
