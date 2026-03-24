@@ -19,10 +19,15 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main() -> None:
+    cfg = config().get("bitcoin", {}).get("price", {})
+    currency = cfg.get("currency", "USD")
+    symbol = cfg.get("symbol", "$")
+    refresh_interval = cfg.get("refresh_interval", 300)
+
     display = Display()
     price_client = BitcoinPriceClient()
-    price_extractor = PriceExtractor("USD", "$")
-    ticker = PriceTicker(display, price_client, price_extractor)
+    price_extractor = PriceExtractor(currency, symbol)
+    ticker = PriceTicker(display, price_client, price_extractor, refresh_interval)
     shutdown = GracefulShutdown()
 
     try:

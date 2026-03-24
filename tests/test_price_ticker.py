@@ -50,20 +50,20 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
         self.mock_display.show.assert_called_once()
 
     def test_no_refresh_within_interval(self):
-        from epaper.price_ticker import PRICE_REFRESH_INTERVAL
+        from epaper.price_ticker import DEFAULT_REFRESH_INTERVAL
         t1 = 9999.0
         self._run_tick([t1, t1])
 
-        t2 = t1 + PRICE_REFRESH_INTERVAL - 1
+        t2 = t1 + DEFAULT_REFRESH_INTERVAL - 1
         self._run_tick([t2])
         self.assertEqual(self.mock_display.show.call_count, 1)
 
     def test_refresh_after_interval_elapsed(self):
-        from epaper.price_ticker import PRICE_REFRESH_INTERVAL
+        from epaper.price_ticker import DEFAULT_REFRESH_INTERVAL
         t1 = 9999.0
         self._run_tick([t1, t1])
 
-        t2 = t1 + PRICE_REFRESH_INTERVAL
+        t2 = t1 + DEFAULT_REFRESH_INTERVAL
         self._run_tick([t2, t2])
         self.assertEqual(self.mock_display.show.call_count, 2)
 
