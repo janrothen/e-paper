@@ -6,8 +6,8 @@ Wants=network-online.target
 [Service]
 # Adjust User, WorkingDirectory, and ExecStart to match your install location.
 User=pi
-WorkingDirectory=/home/pi/e-paper
-ExecStart=/home/pi/e-paper/.venv/bin/python -m epaper
+WorkingDirectory=/home/pi/raspberry/e-paper
+ExecStart=/home/pi/raspberry/e-paper/.venv/bin/python -m epaper
 Restart=on-failure
 RestartSec=10
 Type=notify
