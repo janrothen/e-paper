@@ -2,6 +2,39 @@
 
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
+## Architecture
+
+### Runtime sequence
+
+```mermaid
+sequenceDiagram
+    participant OS as systemd
+    participant Main as __main__
+    participant Ticker as PriceTicker
+    participant Display
+    participant PRICE_API as Bitcoin Price API
+
+    OS->>Main: start process
+    Main->>Display: init + clear
+    Main->>Ticker: start()
+    Ticker->>Display: show(bitcoin logo)
+    Ticker-->>Main: (3s pause)
+    Main->>OS: sd_notify READY=1
+
+    loop every 5 minutes
+        Main->>Ticker: tick()
+        Ticker->>PRICE_API: retrieve_data() (up to 3 retries)
+        PRICE_API-->>Ticker: {"USD": {"last": 84500}}
+        Ticker->>Ticker: format_price → "$84.5k"
+        Ticker->>Display: init → show(price) → sleep()
+        Main->>OS: sd_notify WATCHDOG=1
+    end
+
+    OS->>Main: SIGTERM
+    Main->>Ticker: stop()
+    Ticker->>Display: init → clear → sleep()
+```
+
 ## Configuration
 
 Edit `config.toml` to customise the behaviour:
