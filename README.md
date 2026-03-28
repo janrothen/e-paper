@@ -3,6 +3,7 @@
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
 ![Python](https://img.shields.io/badge/python-3.13%2B-blue)
+![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%20%7C%20Linux-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Requirements
@@ -141,6 +142,11 @@ sudo systemctl disable --now epaper
 | Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; verify the unit matches `systemd/epaper.service` |
 | `waveshare_epd` import fails | Package installed from wrong commit — reinstall with `pip install -e ".[rpi]"` |
 
+## Contributing
+
+Found a bug or have an idea? Open an issue or send a PR.
+Run `pytest` before submitting and keep changes focused.
+
 ## License
 
-MIT
+MIT © Jan Rothen — see [LICENSE](LICENSE) for details.
