@@ -2,6 +2,20 @@
 
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
+![Python](https://img.shields.io/badge/python-3.13%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+## Requirements
+
+**Hardware**
+- Raspberry Pi (tested on Pi 4 Model B Rev 1.4)
+- Waveshare 2.13" e-ink display (epd2in13 V2)
+
+**Software**
+- Python 3.13+
+- pip dependencies: `requests`, `Pillow` (see `pyproject.toml`)
+- Raspberry Pi extras: `RPi.GPIO`, `spidev`, `pigpio`, `gpiozero`, `numpy`, `waveshare-epd` (installed via `pip install -e ".[rpi]"`)
+
 ## Architecture
 
 ### Runtime sequence
@@ -37,7 +51,7 @@ sequenceDiagram
 
 ## Configuration
 
-Edit `config.toml` to customise the behaviour:
+All settings live in `config.toml` — there are no secrets or `.env` files required.
 
 ```toml
 [bitcoin.price]
@@ -58,18 +72,12 @@ The `service_endpoint` must return JSON in this shape (the [blockchain.info tick
 
 ```json
 {
-  "USD": { "last": 84500.0, ... },
-  "CHF": { "last": 75000.0, ... }
+  "USD": { "last": 84500.0 },
+  "CHF": { "last": 75000.0 }
 }
 ```
 
 Any endpoint that returns this structure works as a drop-in replacement.
-
-## Requirements
-
-- Raspberry Pi (tested on Pi 4 Model B Rev 1.4)
-- Waveshare 2.13" e-ink display (epd2in13 V2)
-- Python 3.13+
 
 ## Install & run
 
@@ -81,6 +89,7 @@ python -m epaper
 ```
 
 If you get permission errors on SPI/GPIO devices, add your user to the required groups (then log out and back in):
+
 ```bash
 sudo usermod -aG spi,gpio $USER
 ```
@@ -94,7 +103,11 @@ pip install -e ".[dev]"
 pytest
 ```
 
-## Run as a systemd service (auto-start on boot, auto-restart on failure)
+The mock price client (`src/epaper/price/mock.py`) is used automatically during tests so no live API or hardware is required to run the test suite.
+
+## Deployment
+
+Run as a systemd service for auto-start on boot and auto-restart on failure.
 
 Open `systemd/epaper.service` and adjust `User`, `WorkingDirectory`, and `ExecStart` to match your username and install path before copying it.
 
@@ -112,6 +125,22 @@ journalctl -u epaper -f
 ```
 
 To stop and disable auto-start:
+
 ```bash
 sudo systemctl disable --now epaper
 ```
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| `ModuleNotFoundError: No module named 'RPi'` | RPi extras not installed — run `pip install -e ".[rpi]"` |
+| `PermissionError` on `/dev/spidev` or `/dev/gpiomem` | User not in `spi`/`gpio` groups — run `sudo usermod -aG spi,gpio $USER` and re-login |
+| Display stays blank after start | SPI not enabled — run `sudo raspi-config` → Interface Options → SPI → Enable |
+| Price shows as `$0` or `N/A` | API unreachable — check network and `service_endpoint` in `config.toml` |
+| Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; verify the unit matches `systemd/epaper.service` |
+| `waveshare_epd` import fails | Package installed from wrong commit — reinstall with `pip install -e ".[rpi]"` |
+
+## License
+
+MIT
