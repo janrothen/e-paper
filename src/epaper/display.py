@@ -6,6 +6,8 @@ from PIL import Image
 _PKG_DIR = Path(__file__).parent
 _LIB_DIR = _PKG_DIR / "lib"
 
+# The vendored epd2in13_V2.py imports epdconfig as a bare sibling (not via the
+# package), so the lib directory must be on sys.path for that import to resolve.
 if _LIB_DIR.exists():
     sys.path.insert(0, str(_LIB_DIR))
 

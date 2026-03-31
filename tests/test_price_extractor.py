@@ -11,8 +11,8 @@ class TestPriceExtractor(unittest.TestCase):
         self.assertEqual(self.extractor.format_price(1234567), "$1.234M")
         self.assertEqual(self.extractor.format_price(1230000), "$1.23M")
         self.assertEqual(self.extractor.format_price(1000000), "$1M")
-        self.assertEqual(self.extractor.format_price(999999.99), "$.999M")
-        self.assertEqual(self.extractor.format_price(100000), "$.1M")
+        self.assertEqual(self.extractor.format_price(999999.99), "$0.999M")
+        self.assertEqual(self.extractor.format_price(100000), "$0.1M")
 
     def test_format_price_in_thousands(self):
         self.assertEqual(self.extractor.format_price(99999), "$99.99k")
@@ -25,6 +25,14 @@ class TestPriceExtractor(unittest.TestCase):
         self.assertEqual(self.extractor.format_price(999), "$999")
         self.assertEqual(self.extractor.format_price(123.45), "$123")
         self.assertEqual(self.extractor.format_price(0.99), "$0")
+
+    def test_format_price_zero(self):
+        self.assertEqual(self.extractor.format_price(0), "$0")
+
+    def test_price_zero_in_data_is_displayed_not_na(self):
+        self.assertEqual(
+            self.extractor.formatted_price_from_data({"USD": {"last": 0}}), "$0"
+        )
 
     def test_unknown_currency_returns_na(self):
         extractor = PriceExtractor("XYZ", "X")

@@ -3,9 +3,16 @@ import requests
 DEFAULT_TIMEOUT = 10  # seconds
 
 
+class HttpError(Exception):
+    def __init__(self, status_code: int, body: str) -> None:
+        super().__init__(f"\nCode: {status_code}\nResult: {body}")
+        self.status_code = status_code
+        self.body = body
+
+
 class HttpClient:
     """Thin wrapper around requests that enforces a timeout and raises
-    ConnectionError for any non-2xx response."""
+    HttpError for any non-2xx response."""
 
     def __init__(self, timeout: int = DEFAULT_TIMEOUT) -> None:
         self.timeout = timeout
@@ -24,5 +31,5 @@ class HttpClient:
 
     def _check(self, r: requests.Response) -> str:
         if not (200 <= r.status_code < 300):
-            raise ConnectionError(f"\nCode: {r.status_code}\nResult: {r.text}")
+            raise HttpError(r.status_code, r.text)
         return r.text

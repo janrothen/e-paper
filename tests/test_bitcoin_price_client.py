@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import requests
 
+from epaper.http_client import HttpError
 from epaper.price.bitcoin_price_client import (
     MAX_RETRIES,
     RETRY_DELAY,
@@ -53,8 +54,8 @@ class TestBitcoinPriceClientErrorHandling(unittest.TestCase):
         with patch("epaper.price.bitcoin_price_client.time.sleep"):
             return client.retrieve_data()
 
-    def test_connection_error_returns_none(self):
-        self.assertIsNone(self._run_with_error(ConnectionError("connection refused")))
+    def test_http_error_returns_none(self):
+        self.assertIsNone(self._run_with_error(HttpError(503, "service unavailable")))
 
     def test_requests_timeout_returns_none(self):
         self.assertIsNone(self._run_with_error(requests.Timeout("timed out")))
@@ -89,8 +90,8 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
         good_response = json.dumps({"USD": {"last": 50000}})
         client, mock_http = _make_client(
             side_effect=[
-                ConnectionError("fail"),
-                ConnectionError("fail"),
+                HttpError(503, "fail"),
+                HttpError(503, "fail"),
                 good_response,
             ]
         )
@@ -102,7 +103,7 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
         mock_sleep.assert_called_with(RETRY_DELAY)
 
     def test_exhausts_all_retries_and_returns_none(self):
-        client, mock_http = _make_client(side_effect=ConnectionError("always fails"))
+        client, mock_http = _make_client(side_effect=HttpError(503, "always fails"))
         with patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
             result = client.retrieve_data()
 
@@ -111,7 +112,7 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
         self.assertEqual(mock_sleep.call_count, MAX_RETRIES - 1)
 
     def test_no_sleep_after_last_failed_attempt(self):
-        client, _ = _make_client(side_effect=ConnectionError("fail"))
+        client, _ = _make_client(side_effect=HttpError(503, "fail"))
         with patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
             client.retrieve_data()
 

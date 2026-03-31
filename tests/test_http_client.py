@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from epaper.http_client import DEFAULT_TIMEOUT, HttpClient
+from epaper.http_client import DEFAULT_TIMEOUT, HttpClient, HttpError
 
 
 class TestHttpClientStatusCodes(unittest.TestCase):
@@ -19,25 +19,37 @@ class TestHttpClientStatusCodes(unittest.TestCase):
             ):
                 HttpClient().get("http://example.com")  # must not raise
 
-    def test_4xx_raises_connection_error(self):
+    def test_4xx_raises_http_error(self):
         with (
             patch(
                 "epaper.http_client.requests.get",
                 return_value=self._mock_response(404),
             ),
-            self.assertRaises(ConnectionError),
+            self.assertRaises(HttpError),
         ):
             HttpClient().get("http://example.com")
 
-    def test_5xx_raises_connection_error(self):
+    def test_5xx_raises_http_error(self):
         with (
             patch(
                 "epaper.http_client.requests.get",
                 return_value=self._mock_response(500),
             ),
-            self.assertRaises(ConnectionError),
+            self.assertRaises(HttpError),
         ):
             HttpClient().get("http://example.com")
+
+    def test_http_error_carries_status_code_and_body(self):
+        with (
+            patch(
+                "epaper.http_client.requests.get",
+                return_value=self._mock_response(503, "unavailable"),
+            ),
+            self.assertRaises(HttpError) as ctx,
+        ):
+            HttpClient().get("http://example.com")
+        self.assertEqual(ctx.exception.status_code, 503)
+        self.assertEqual(ctx.exception.body, "unavailable")
 
 
 class TestHttpClientTimeout(unittest.TestCase):

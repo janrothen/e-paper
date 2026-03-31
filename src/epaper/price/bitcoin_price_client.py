@@ -5,7 +5,7 @@ import time
 import requests
 
 from epaper.config import config
-from epaper.http_client import HttpClient
+from epaper.http_client import HttpClient, HttpError
 
 MAX_RETRIES = 3
 RETRY_DELAY = 5  # seconds between attempts
@@ -20,26 +20,25 @@ class BitcoinPriceClient:
 
     def __init__(self, http_client: HttpClient | None = None) -> None:
         self._http = http_client or HttpClient()
+        self._endpoint = config()["bitcoin"]["price"]["service_endpoint"]
 
     def retrieve_data(self) -> dict | None:
         """Fetch price data, retrying up to MAX_RETRIES times on failure.
 
         Returns the parsed JSON dict on success, or None if all attempts fail.
         """
-        endpoint = config()["bitcoin"]["price"]["service_endpoint"]
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                result = self._http.get(endpoint)
-                if not result:
-                    logging.warning(
-                        "Price fetch attempt %d/%d returned empty response",
-                        attempt,
-                        MAX_RETRIES,
-                    )
-                else:
+                result = self._http.get(self._endpoint)
+                if result:
                     return json.loads(result)
+                logging.warning(
+                    "Price fetch attempt %d/%d returned empty response",
+                    attempt,
+                    MAX_RETRIES,
+                )
             except (
-                ConnectionError,
+                HttpError,
                 requests.RequestException,
                 json.JSONDecodeError,
             ) as e:

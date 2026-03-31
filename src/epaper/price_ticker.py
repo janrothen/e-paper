@@ -47,7 +47,7 @@ class PriceTicker:
         self.price_extractor = price_extractor
         self._refresh_interval = refresh_interval
         self._stopped = False
-        self._last_refresh = 0.0  # triggers refresh on first tick()
+        self._last_refresh = float("-inf")  # guarantees refresh on first tick()
         self._font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
 
     def start(self) -> None:
@@ -89,6 +89,9 @@ class PriceTicker:
         if self._stopped:
             return
         self._stopped = True
-        self.display.init()
-        self.display.clear()
-        self.display.sleep()
+        try:
+            self.display.init()
+            self.display.clear()
+            self.display.sleep()
+        except Exception:
+            logging.exception("display shutdown failed")

@@ -49,6 +49,10 @@ class TestSdNotify(unittest.TestCase):
         with patch.dict(os.environ, env_without_socket, clear=True):
             sd_notify("READY=1")  # must not raise
 
+    def test_silently_ignores_bad_socket_path(self):
+        with patch.dict(os.environ, {"NOTIFY_SOCKET": "/nonexistent/path/notify.sock"}):
+            sd_notify("WATCHDOG=1")  # must not raise
+
 
 if __name__ == "__main__":
     unittest.main()

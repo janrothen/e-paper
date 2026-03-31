@@ -20,6 +20,40 @@ def _make_ticker():
     return ticker, mock_display
 
 
+class TestPriceTickerStart(unittest.TestCase):
+    def setUp(self) -> None:
+        self.ticker, self.mock_display = _make_ticker()
+
+    def test_start_shows_image_on_display(self):
+        from epaper.price_ticker import IMAGE_FILE
+
+        mock_image = MagicMock()
+        mock_image.size = (122, 122)
+        with (
+            patch(
+                "epaper.price_ticker.Image.open", return_value=mock_image
+            ) as mock_open,
+            patch("epaper.price_ticker.Image.new", return_value=MagicMock()),
+            patch("epaper.price_ticker.time.sleep"),
+        ):
+            self.ticker.start()
+
+        mock_open.assert_called_once_with(IMAGE_FILE)
+        self.mock_display.show.assert_called_once()
+
+    def test_start_pauses_before_price_loop(self):
+        mock_image = MagicMock()
+        mock_image.size = (122, 122)
+        with (
+            patch("epaper.price_ticker.Image.open", return_value=mock_image),
+            patch("epaper.price_ticker.Image.new", return_value=MagicMock()),
+            patch("epaper.price_ticker.time.sleep") as mock_sleep,
+        ):
+            self.ticker.start()
+
+        mock_sleep.assert_called_once_with(3)
+
+
 class TestPriceTickerStop(unittest.TestCase):
     def setUp(self) -> None:
         self.ticker, self.mock_display = _make_ticker()
@@ -33,6 +67,13 @@ class TestPriceTickerStop(unittest.TestCase):
         self.assertFalse(self.ticker._stopped)
         self.ticker.stop()
         self.assertTrue(self.ticker._stopped)
+
+    def test_stop_swallows_display_errors(self):
+        self.mock_display.init.side_effect = OSError("SPI error")
+        try:
+            self.ticker.stop()  # must not raise
+        except Exception as e:
+            self.fail(f"stop() raised {e}")
 
 
 class TestPriceTickerRefreshTiming(unittest.TestCase):
