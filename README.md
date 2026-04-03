@@ -3,7 +3,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%20%7C%20Linux-lightgrey.svg)
 ![Python](https://img.shields.io/badge/python-3.13%2B-blue)
-|
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=alert_status)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=bugs)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=code_smells)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
