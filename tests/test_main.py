@@ -1,0 +1,101 @@
+import sys
+import types
+import unittest
+from unittest.mock import MagicMock, PropertyMock, call, patch
+
+# Stub hardware drivers before epaper.__main__ is imported.
+# epaper.__main__ has module-level `from epaper.display import Display`, which
+# in turn loads the vendored epd2in13_V2 driver that requires Pi hardware.
+sys.modules.setdefault("epaper.lib.epdconfig", MagicMock())
+if "epaper.lib.epd2in13_V2" not in sys.modules:
+    _epd_mod = types.ModuleType("epaper.lib.epd2in13_V2")
+    _epd_mod.EPD = MagicMock()
+    sys.modules["epaper.lib.epd2in13_V2"] = _epd_mod
+sys.modules.pop("epaper.display", None)
+sys.modules.pop("epaper.__main__", None)
+
+
+def _run_main(mock_ticker, mock_shutdown, mock_sd_notify, extra_config=None):
+    cfg = extra_config or {}
+    with (
+        patch("epaper.__main__.Display"),
+        patch("epaper.__main__.BitcoinPriceClient"),
+        patch("epaper.__main__.PriceExtractor"),
+        patch("epaper.__main__.PriceTicker", return_value=mock_ticker),
+        patch("epaper.__main__.GracefulShutdown", return_value=mock_shutdown),
+        patch("epaper.__main__.sd_notify", mock_sd_notify),
+        patch("epaper.__main__.config", return_value=cfg),
+    ):
+        from epaper.__main__ import main
+
+        main()
+
+
+class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.mock_ticker = MagicMock()
+        self.mock_sd_notify = MagicMock()
+        self.mock_shutdown = MagicMock()
+
+    def _run(self, kill_now_sequence, **kwargs):
+        type(self.mock_shutdown).kill_now = PropertyMock(side_effect=kill_now_sequence)
+        _run_main(self.mock_ticker, self.mock_shutdown, self.mock_sd_notify, **kwargs)
+
+    def test_ticker_start_is_called(self):
+        self._run([True])
+        self.mock_ticker.start.assert_called_once()
+
+    def test_sd_notify_ready(self):
+        self._run([True])
+        self.mock_sd_notify.assert_any_call("READY=1")
+
+    def test_tick_called_once_per_loop_iteration(self):
+        self._run([False, False, True])
+        self.assertEqual(self.mock_ticker.tick.call_count, 2)
+
+    def test_watchdog_notified_each_iteration(self):
+        self._run([False, False, True])
+        watchdog_calls = [
+            c for c in self.mock_sd_notify.call_args_list if c == call("WATCHDOG=1")
+        ]
+        self.assertEqual(len(watchdog_calls), 2)
+
+    def test_ticker_stop_called_on_clean_exit(self):
+        self._run([True])
+        self.mock_ticker.stop.assert_called_once()
+
+    def test_ticker_stop_called_on_exception(self):
+        self.mock_ticker.start.side_effect = RuntimeError("boom")
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        with self.assertRaises(SystemExit):
+            _run_main(self.mock_ticker, self.mock_shutdown, self.mock_sd_notify)
+        self.mock_ticker.stop.assert_called_once()
+
+    def test_sys_exit_1_on_exception(self):
+        self.mock_ticker.start.side_effect = RuntimeError("boom")
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        with self.assertRaises(SystemExit) as ctx:
+            _run_main(self.mock_ticker, self.mock_shutdown, self.mock_sd_notify)
+        self.assertEqual(ctx.exception.code, 1)
+
+    def test_config_currency_and_symbol_passed_to_price_extractor(self):
+        cfg = {"bitcoin": {"price": {"currency": "CHF", "symbol": "CHF "}}}
+        mock_extractor_cls = MagicMock()
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        with (
+            patch("epaper.__main__.Display"),
+            patch("epaper.__main__.BitcoinPriceClient"),
+            patch("epaper.__main__.PriceExtractor", mock_extractor_cls),
+            patch("epaper.__main__.PriceTicker", return_value=self.mock_ticker),
+            patch("epaper.__main__.GracefulShutdown", return_value=self.mock_shutdown),
+            patch("epaper.__main__.sd_notify", self.mock_sd_notify),
+            patch("epaper.__main__.config", return_value=cfg),
+        ):
+            from epaper.__main__ import main
+
+            main()
+        mock_extractor_cls.assert_called_once_with("CHF", "CHF ")
+
+
+if __name__ == "__main__":
+    unittest.main()
