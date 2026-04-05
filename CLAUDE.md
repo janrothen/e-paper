@@ -25,6 +25,10 @@ src/epaper/          # installable package
   lib/               # Waveshare display drivers (fallback when pip package unavailable)
   media/             # fonts and images
 tests/
+deploy/
+  systemd/
+    epaper.service   # systemd unit for auto-start on boot
+    README.md        # installation instructions
 config.toml          # runtime config (service endpoint)
 pyproject.toml       # packaging and dependencies
 ```
