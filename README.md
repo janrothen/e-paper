@@ -114,26 +114,7 @@ The mock price client (`src/epaper/price/mock.py`) is used automatically during 
 
 Run as a systemd service for auto-start on boot and auto-restart on failure.
 
-Open `systemd/epaper.service` and adjust `User`, `WorkingDirectory`, and `ExecStart` to match your username and install path before copying it.
-
-```bash
-# Install the service unit
-sudo cp systemd/epaper.service /etc/systemd/system/
-sudo systemctl daemon-reload
-
-# Enable (start on boot) and start immediately
-sudo systemctl enable --now epaper
-
-# Check status / logs
-systemctl status epaper
-journalctl -u epaper -f
-```
-
-To stop and disable auto-start:
-
-```bash
-sudo systemctl disable --now epaper
-```
+See [`deploy/systemd/README.md`](deploy/systemd/README.md) for installation instructions.
 
 ## Troubleshooting
 
@@ -143,7 +124,7 @@ sudo systemctl disable --now epaper
 | `PermissionError` on `/dev/spidev` or `/dev/gpiomem` | User not in `spi`/`gpio` groups — run `sudo usermod -aG spi,gpio $USER` and re-login |
 | Display stays blank after start | SPI not enabled — run `sudo raspi-config` → Interface Options → SPI → Enable |
 | Price shows as `$0` or `N/A` | API unreachable — check network and `service_endpoint` in `config.toml` |
-| Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; verify the unit matches `systemd/epaper.service` |
+| Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; verify the unit matches `deploy/systemd/epaper.service` |
 | `waveshare_epd` import fails | Package installed from wrong commit — reinstall with `pip install -e ".[rpi]"` |
 
 ## Contributing
