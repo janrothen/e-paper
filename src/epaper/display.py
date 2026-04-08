@@ -14,7 +14,23 @@ if _LIB_DIR.exists():
 try:
     from waveshare_epd import epd2in13_V2
 except ModuleNotFoundError:
-    from epaper.lib import epd2in13_V2
+    import os as _os
+
+    _real_exists = _os.path.exists
+
+    def _patched_exists(path: str) -> bool:
+        # On Linux 6.6+ (Debian Trixie) the BCM gpiomem driver was renamed
+        # from gpiomem-bcm2835 to rpi-gpiomem, breaking epdconfig.py's
+        # platform detection which would otherwise fall through to JetsonNano.
+        if path == "/sys/bus/platform/drivers/gpiomem-bcm2835":
+            return _real_exists("/sys/bus/platform/drivers/rpi-gpiomem")
+        return _real_exists(path)
+
+    _os.path.exists = _patched_exists
+    try:
+        from epaper.lib import epd2in13_V2
+    finally:
+        _os.path.exists = _real_exists
 
 
 class Display:
