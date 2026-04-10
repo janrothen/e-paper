@@ -10,6 +10,8 @@
 
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
+![Raspberry Pi 4 with Waveshare e-ink display showing $73.08k](docs/images/assembled.png)
+
 ## Requirements
 
 **Hardware**
