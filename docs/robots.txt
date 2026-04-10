@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://janrothen.github.io/btc-ticker/sitemap.xml
