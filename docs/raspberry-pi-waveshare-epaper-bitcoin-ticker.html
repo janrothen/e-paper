@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Step-by-step guide to wiring a Waveshare 2.13&quot; e-ink display to a Raspberry Pi and running a live Bitcoin price ticker.">
+  <meta property="og:title" content="How to connect a Waveshare E-Ink display to a Raspberry Pi">
+  <meta property="og:description" content="Wire a Waveshare 2.13&quot; e-paper display to a Raspberry Pi and display a live Bitcoin price ticker.">
+  <meta property="og:image" content="https://janrothen.github.io/btc-ticker/images/assembled.png">
+  <meta property="og:url" content="https://janrothen.github.io/btc-ticker/raspberry-pi-waveshare-epaper-bitcoin-ticker.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to connect a Waveshare E-Ink display to a Raspberry Pi">
+  <meta name="twitter:description" content="Wire a Waveshare 2.13&quot; e-paper display to a Raspberry Pi and display a live Bitcoin price ticker.">
+  <title>How to connect a Waveshare E-Ink display to a Raspberry Pi</title>
+  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" />
+  <link rel="canonical" href="https://janrothen.github.io/btc-ticker/raspberry-pi-waveshare-epaper-bitcoin-ticker.html">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "BTC Ticker",
+    "operatingSystem": "Linux (Raspberry Pi OS / Debian)",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "Display the current Bitcoin/USD price on a Waveshare 2.13\" e-ink display connected to a Raspberry Pi.",
+    "url": "https://janrothen.github.io/btc-ticker/",
+    "author": { "@type": "Person", "name": "Jan Rothen" },
+    "codeRepository": "https://github.com/janrothen/btc-ticker",
+    "license": "https://github.com/janrothen/btc-ticker/blob/main/LICENSE"
+  }
+  </script>
+</head>
+
+<body>
+  <nav>
+    <a href="./index.html">Home</a> |
+    <a href="./raspberry-pi-waveshare-epaper-bitcoin-ticker.html">Hardware guide</a> |
+    <a href="https://github.com/janrothen/btc-ticker">GitHub repo</a>
+  </nav>
+
+  <h1>How to connect a Waveshare E-Ink display to a Raspberry Pi</h1>
+  <p>In this guide, you'll learn how to wire a Waveshare 2.13" e-paper display to your Raspberry Pi and
+    run the BTC Ticker software so it shows the live Bitcoin price.</p>
+
+  <h2>What you'll need</h2>
+  <ul>
+    <li><strong>Raspberry Pi</strong> (any model with a 40-pin GPIO header; this guide uses a Pi 4)</li>
+    <li><strong>Waveshare 2.13" e-ink display V2</strong> (<code>epd2in13</code>) with 8-pin HAT connector or loose wire harness</li>
+    <li><strong>Jumper wires</strong> (if your display comes with a loose harness rather than a HAT)</li>
+    <li><strong>MicroSD card</strong> with Raspberry Pi OS (Debian Bookworm/Trixie) installed</li>
+    <li><strong>Internet connection</strong> on the Pi to fetch prices</li>
+  </ul>
+
+  <h2>What you are going to build</h2>
+  <div style="text-align: center; margin: 20px 0;">
+    <img src="images/assembled.png" alt="Raspberry Pi 4 in red aluminum case with Waveshare e-ink display showing $73.08k"
+      style="max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd;">
+    <p style="font-style: italic; color: #666;">Raspberry Pi 4 with the Waveshare 2.13" display showing the live BTC price</p>
+  </div>
+
+  <h2>1. Enable SPI on the Raspberry Pi</h2>
+  <p>The e-ink display communicates over the SPI bus, which is disabled by default. Enable it with
+    <code>raspi-config</code>:</p>
+  <pre>sudo raspi-config</pre>
+  <p>Navigate to <strong>Interface Options → SPI → Yes</strong>, then reboot:</p>
+  <pre>sudo reboot</pre>
+
+  <h2>2. Wire the display to the GPIO header</h2>
+  <p>The display has 8 pins. Connect them to the Pi's 40-pin header as follows. Use either the physical
+    pin numbers or the GPIO labels — but don't mix them.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Display pin</th>
+        <th>Physical pin</th>
+        <th>GPIO / function</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>VCC</td><td>Pin 17</td><td>3.3 V power</td></tr>
+      <tr><td>GND</td><td>Pin 20</td><td>Ground</td></tr>
+      <tr><td>DIN</td><td>Pin 19</td><td>GPIO 10 / MOSI</td></tr>
+      <tr><td>CLK</td><td>Pin 23</td><td>GPIO 11 / SCLK</td></tr>
+      <tr><td>CS</td><td>Pin 24</td><td>GPIO 8 / CE0</td></tr>
+      <tr><td>DC</td><td>Pin 22</td><td>GPIO 25</td></tr>
+      <tr><td>RST</td><td>Pin 11</td><td>GPIO 17</td></tr>
+      <tr><td>BUSY</td><td>Pin 18</td><td>GPIO 24</td></tr>
+    </tbody>
+  </table>
+
+  <p><em>Tip: after connecting, most pins cluster between physical pins 17–24, with the RST wire reaching
+    back to pin 11. Double-check that pin before powering on.</em></p>
+
+  <h2>3. Install the btc-ticker package</h2>
+  <p>On your Raspberry Pi, clone the repository and install the package into a virtual environment:</p>
+  <pre>
+git clone https://github.com/janrothen/btc-ticker
+cd btc-ticker
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .</pre>
+
+  <h2>4. Run it</h2>
+  <p>With the virtual environment active, start the ticker:</p>
+  <pre>python3 -m btcticker</pre>
+  <p>The display will show the Bitcoin logo on startup, then begin refreshing the price every 5 minutes.
+    Press <kbd>Ctrl+C</kbd> to stop.</p>
+
+  <h2>5. Run as a systemd service (auto-start on boot)</h2>
+  <p>A ready-made service unit is included in the repository. Install it so the ticker starts automatically
+    whenever the Pi boots:</p>
+  <pre>
+sudo cp deploy/systemd/btcticker.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable btcticker
+sudo systemctl start btcticker</pre>
+  <p>Check that it is running:</p>
+  <pre>sudo systemctl status btcticker</pre>
+  <p>Full installation instructions are in
+    <a href="https://github.com/janrothen/btc-ticker/blob/main/deploy/systemd/README.md"><code>deploy/systemd/README.md</code></a>.</p>
+
+  <footer>
+    <p>© 2026 Jan Rothen – <a href="https://github.com/janrothen/btc-ticker">Source on GitHub</a></p>
+  </footer>
+</body>
+
+</html>

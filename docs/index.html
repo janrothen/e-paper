@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Display the current Bitcoin/USD price on a Waveshare 2.13&quot; e-ink display connected to a Raspberry Pi. Refreshes every 5 minutes, runs as a systemd service.">
+  <meta property="og:title" content="BTC Ticker — Bitcoin Price on a Raspberry Pi E-Ink Display">
+  <meta property="og:description" content="Display the live Bitcoin price on a Waveshare 2.13&quot; e-ink display connected to a Raspberry Pi.">
+  <meta property="og:image" content="https://janrothen.github.io/btc-ticker/images/assembled.png">
+  <meta property="og:url" content="https://janrothen.github.io/btc-ticker/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BTC Ticker — Bitcoin Price on a Raspberry Pi E-Ink Display">
+  <meta name="twitter:description" content="Display the live Bitcoin price on a Waveshare 2.13&quot; e-ink display connected to a Raspberry Pi.">
+  <title>BTC Ticker — Bitcoin Price on a Raspberry Pi E-Ink Display</title>
+  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" />
+  <link rel="canonical" href="https://janrothen.github.io/btc-ticker/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "BTC Ticker",
+    "operatingSystem": "Linux (Raspberry Pi OS / Debian)",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "Display the current Bitcoin/USD price on a Waveshare 2.13\" e-ink display connected to a Raspberry Pi.",
+    "url": "https://janrothen.github.io/btc-ticker/",
+    "author": { "@type": "Person", "name": "Jan Rothen" },
+    "codeRepository": "https://github.com/janrothen/btc-ticker",
+    "license": "https://github.com/janrothen/btc-ticker/blob/main/LICENSE"
+  }
+  </script>
+</head>
+
+<body>
+  <nav>
+    <a href="./index.html">Home</a> |
+    <a href="./raspberry-pi-waveshare-epaper-bitcoin-ticker.html">Hardware guide</a> |
+    <a href="https://github.com/janrothen/btc-ticker">GitHub repo</a>
+  </nav>
+
+  <h1>BTC Ticker</h1>
+  <p>
+    A minimal Bitcoin price ticker that runs on a Raspberry Pi and displays the current BTC/USD price
+    on a Waveshare 2.13" e-ink display. On startup it shows a Bitcoin logo, then enters a loop that
+    refreshes the price every 5 minutes. The background alternates randomly between black and white on
+    each refresh.
+  </p>
+  <ul>
+    <li>Fetches live BTC/USD price from a configurable API endpoint</li>
+    <li>Renders price in large, high-contrast text on a 2.13" e-ink panel</li>
+    <li>Alternates black/white background on every refresh for visual variety</li>
+    <li>Runs as a systemd service — starts automatically on boot</li>
+    <li>Watchdog integration via <code>sd_notify</code> for reliable restarts</li>
+    <li>Installable Python package with a clean hardware abstraction layer</li>
+  </ul>
+
+  <h2>Preview</h2>
+  <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
+    <div style="text-align: center;">
+      <img src="images/assembled.png" alt="Raspberry Pi 4 in red aluminum case with Waveshare e-ink display showing $73.08k" style="max-width: 400px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <p style="font-style: italic; color: #666;">Assembled hardware</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="images/bitcoin-full-nodes.png" alt="BTC ticker display showing $72.73k in front of gorilla sculpture" style="max-width: 300px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <p style="font-style: italic; color: #666;">In its natural habitat</p>
+    </div>
+  </div>
+
+  <h2>Documentation</h2>
+  <ol>
+    <li><a href="raspberry-pi-waveshare-epaper-bitcoin-ticker.html">Hardware setup guide</a></li>
+    <li><a href="https://github.com/janrothen/btc-ticker/blob/main/README.md">Software setup guide</a></li>
+  </ol>
+
+  <footer>
+    <p>© 2026 Jan Rothen – <a href="https://github.com/janrothen/btc-ticker">Source on GitHub</a></p>
+  </footer>
+</body>
+
+</html>
