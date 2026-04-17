@@ -2,6 +2,9 @@ import math
 
 type PriceData = dict | None
 
+_MILLION = 1_000_000
+_THOUSAND = 1_000
+
 
 class PriceExtractor:
     def __init__(self, currency: str, symbol: str) -> None:
@@ -30,23 +33,16 @@ class PriceExtractor:
         Trailing zeros are stripped. Values are truncated, never rounded,
         so the display never shows a price higher than the actual value.
         """
-        p = self.price_without_cents(price)
-        if p >= 100_000:
-            value = p / 1_000_000
-            truncated = (
-                int(value * 1000) / 1000
-            )  # truncate to 3 decimal places, no rounding
-            formatted = f"{truncated:.3f}".rstrip("0").rstrip(".")
-            return f"{self.symbol}{formatted}M"
-        elif p >= 1_000:
-            value = p / 1_000
-            truncated = (
-                int(value * 100) / 100
-            )  # truncate to 2 decimal places, no rounding
-            formatted = f"{truncated:.2f}".rstrip("0").rstrip(".")
-            return f"{self.symbol}{formatted}k"
-        else:
-            return f"{self.symbol}{p}"
+        whole = math.floor(price)
+        if whole >= 100_000:
+            return f"{self.symbol}{self._compact(whole / _MILLION, decimals=3)}M"
+        if whole >= 1_000:
+            return f"{self.symbol}{self._compact(whole / _THOUSAND, decimals=2)}k"
+        return f"{self.symbol}{whole}"
 
-    def price_without_cents(self, price: float) -> int:
-        return math.floor(price)
+    @staticmethod
+    def _compact(value: float, decimals: int) -> str:
+        """Truncate to `decimals` places (never round) and strip trailing zeros."""
+        scale = 10**decimals
+        truncated = int(value * scale) / scale
+        return f"{truncated:.{decimals}f}".rstrip("0").rstrip(".")
